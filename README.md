@@ -1,0 +1,1 @@
+# mac-wifi-encrypt-check
