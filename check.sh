@@ -1,12 +1,16 @@
 #!/bin/sh
 
+## Setting
 AIRPORT_DIR="/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources"
+logFile="/Library/Logs/TechSupport/WiFi-Encrypt-Check/check.log"
+mkdir -p /Library/Logs/TechSupport/WiFi-Encrypt-Check/
+touch ${logFile}
 
 ## wifi on or off
 WIFI_CHECK=`${AIRPORT_DIR}/airport -I | grep "running" | awk '{print $2}'`
 
 if [[ ${WIFI_CHECK} != "running" ]]; then
-	echo "WiFi is OFF"
+	echo "$(date)" "WiFi is OFF" >> "$logFile"
 	exit 0
 fi
 
@@ -15,9 +19,8 @@ WIFI_ENCRYPT=`${AIRPORT_DIR}/airport -I | grep "link" | awk '{print $3}'`
 #WIFI_ENCRYPT="wep"
 
 if [[ ${WIFI_ENCRYPT} = "wpa2"* ]] || [[ ${WIFI_ENCRYPT} = "wpa3"* ]] ; then
-	echo "WiFi is safety! reason:${WIFI_ENCRYPT}"
+	echo "$(date)" "WiFi is safety! reason:${WIFI_ENCRYPT}" >> "$logFile"
 else
-	#echo "あなたのネットワークは危険です"
 	user=$(ls -la /dev/console | cut -d " " -f 4)
 
 	userPrompt=$(sudo -u ${user} osascript -e '
@@ -25,7 +28,7 @@ else
 		set tmp to result
 		set btn to button returned of tmp
 	')
-	#echo "$userPrompt"
+	echo "$(date)" "WiFi is danger! reason:${WIFI_ENCRYPT}" >> "$logFile"
 fi
 
 exit 0
